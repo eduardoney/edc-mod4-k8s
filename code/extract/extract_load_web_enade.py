@@ -66,7 +66,7 @@ if __name__ == '__main__':
         format='%(asctime)s:%(levelname)s:%(message)s',  level=logging.INFO)
 
     url = "https://download.inep.gov.br/microdados/Enade_Microdados/microdados_Enade_2017_portal_2018.10.09.zip"
-    file_zip = "./code/extract/data/microdados_Enade_2017_portal_2018.10.09.zip"
+    file_zip = "./data/microdados_Enade_2017_portal_2018.10.09.zip"
     bucket = "bootcamp-edc"
 
     if download_file(url=url, file_path=file_zip):

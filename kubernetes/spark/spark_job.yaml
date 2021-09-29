@@ -1,0 +1,62 @@
+apiVersion: "sparkoperator.k8s.io/v1beta2"
+kind: SparkApplication
+metadata:
+  name: job-trasform-enade-326t0ta5
+  namespace: processing
+spec:
+  volumes:
+    - name: ivy
+      emptyDir: {}
+  type: Python
+  pythonVersion: "3"
+  mode: cluster
+
+  sparkConf:
+    spark.jars.packages: "com.google.cloud.bigdataoss:gcs-connector:hadoop3-2.2.2"
+    spark.driver.extraJavaOptions: "-Divy.cache.dir=/tmp -Divy.home=/tmp"
+    spark.kubernetes.allocation.batch.size: "10"
+
+  hadoopConf:
+    fs.gs.impl: com.google.cloud.hadoop.fs.gcs.GoogleHadoopFileSystem
+    fs.AbstractFileSystem.gs.impl: com.google.cloud.hadoop.fs.gcs.GoogleHadoopFS
+
+  
+  image: "docker.io/eduardoney/spark-transform-enade:1.0"
+  imagePullPolicy: Always
+  mainApplicationFile: "local:///app/transform_enade.py"
+
+  sparkVersion: "3.0.0"
+  restartPolicy:
+    type: Never
+  
+  driver:
+    cores: 1
+    coreLimit: "1200m"
+    memory: "4g"
+    labels:
+      version: 3.0.0
+    serviceAccount: spark
+
+    secrets:
+      - name: service-account-credentials
+        path: /etc/gcp
+        secretType: GCPServiceAccount
+
+    volumeMounts:
+      - name: ivy
+        mountPath: /tmp
+
+  executor:
+    cores: 3
+    instances: 3
+    memory: "4g"
+    labels:
+      version: 3.0.0
+    secrets:
+      - name: service-account-credentials
+        path: /etc/gcp
+        secretType: GCPServiceAccount
+        
+    volumeMounts:
+      - name: ivy
+        mountPath: /tmp

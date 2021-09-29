@@ -1,0 +1,33 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: extract-load-web-enade-job
+spec:
+  backoffLimit: 3
+  activeDeadlineSeconds: 600
+  template:
+    spec:
+      containers:
+      - name: job-extract-load
+        image: eduardoney/extract_load_web_enade:1.0
+        imagePullPolicy: Always
+        env:
+          - name: GOOGLE_APPLICATION_CREDENTIALS
+            value: /etc/gcp/sa_credentials.json
+            
+        command: ["python","/app/extract_load_web_enade.py"]
+
+        volumeMounts:
+        - name: service-account-credentials-volume
+          mountPath: /etc/gcp
+          readOnly: true
+
+      restartPolicy: Never
+
+      volumes:
+      - name: service-account-credentials-volume
+        secret:
+          secretName: service-account-credentials
+          items:
+          - key: sa_json
+            path: sa_credentials.json
