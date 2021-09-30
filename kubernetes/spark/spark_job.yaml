@@ -1,7 +1,7 @@
 apiVersion: "sparkoperator.k8s.io/v1beta2"
 kind: SparkApplication
 metadata:
-  name: job-trasform-enade-326t0ta5
+  name: job-trasform-enade-726t0ta5
   namespace: processing
 spec:
   volumes:
