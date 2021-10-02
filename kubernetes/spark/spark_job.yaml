@@ -1,25 +1,31 @@
 apiVersion: "sparkoperator.k8s.io/v1beta2"
 kind: SparkApplication
 metadata:
-  name: job-trasform-enade-726t0ta5
+  name: job-trasform-enade-556t0ta5
   namespace: processing
 spec:
   volumes:
     - name: ivy
       emptyDir: {}
+
   type: Python
   pythonVersion: "3"
   mode: cluster
-
+  deps:
+    jars:
+      - local:///opt/spark/jars/gcs-connector-hadoop3-latest.jar
   sparkConf:
-    spark.jars.packages: "com.google.cloud.bigdataoss:gcs-connector:hadoop3-2.2.2"
+    #spark.jars.packages: "com.google.cloud.bigdataoss:gcs-connector:hadoop3-2.2.2"
     spark.driver.extraJavaOptions: "-Divy.cache.dir=/tmp -Divy.home=/tmp"
     spark.kubernetes.allocation.batch.size: "10"
 
   hadoopConf:
     fs.gs.impl: com.google.cloud.hadoop.fs.gcs.GoogleHadoopFileSystem
-    fs.AbstractFileSystem.gs.impl: com.google.cloud.hadoop.fs.gcs.GoogleHadoopFS
-
+    fs.AbstractFileSystem.gs.impl: com.google.cloud.hadoop.fs.gcs.GoogleHadoopFileSystem
+    fs.gs.project.id: "gcp-estudos-engdados"
+    fs.gs.system.bucket: "bootcamp-edc"
+    google.cloud.auth.service.account.enable: "true"
+    google.cloud.auth.service.account.json.keyfile: "/etc/gcp/sa_credentials.json"
   
   image: "docker.io/eduardoney/spark-transform-enade:1.0"
   imagePullPolicy: Always

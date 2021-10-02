@@ -1,24 +1,45 @@
+# import libraries
+from os.path import abspath
 from pyspark.sql import SparkSession
+from pyspark import SparkConf
 import pyspark.sql.functions as f
+
+# set default location for warehouse
+warehouse_location = abspath('spark-warehouse')
 
 if __name__ == '__main__':
 
     spark = (SparkSession
              .builder
              .appName('transform_enade')
+             .config("spark.sql.warehouse.dir", warehouse_location)
              .config("spark.jars", "/opt/spark/jars/gcs-connector-hadoop3-latest.jar")
+             #.config("spark.jars.packages","com.google.cloud.bigdataoss:gcs-connector:hadoop3-2.2.2")
              .config("fs.gs.impl", "com.google.cloud.hadoop.fs.gcs.GoogleHadoopFileSystem")
-             .config("fs.AbstractFileSystem.gs.impl", "com.google.cloud.hadoop.fs.gcs.GoogleHadoopFS")
+             .config("fs.AbstractFileSystem.gs.impl", "com.google.cloud.hadoop.fs.gcs.GoogleHadoopFileSystem")
              .config("fs.gs.auth.service.account.enable", "true")
              .config("fs.gs.auth.service.account.json.keyfile", "/etc/gcp/sa_credentials.json")
              .config("spark.driver.memory", "8g")
+             .enableHiveSupport()
              .getOrCreate())
+
+    # show configured parameters
+    print(SparkConf().getAll())
+
+    # set log level
+    spark.sparkContext.setLogLevel("warn")
 
     file_path = 'gs://bootcamp-edc/landing/MICRODADOS_ENADE_2017.txt'
 
-    df_enade = spark.read.csv(file_path,
-                              sep=';',
-                              header=True)
+    print('Inicio leitura arquivo')
+    
+    df_enade = (spark
+                .read
+                .format('csv')
+                .option("sep", ";")
+                .option("header", "true")
+                .option("inferSchema", "false")
+                .csv(file_path))
 
     int_columns = ['NU_ANO', 'CO_IES', 'CO_CATEGAD', 'CO_ORGACAD', 'CO_GRUPO', 'CO_CURSO', 'CO_MODALIDADE', 'CO_MUNIC_CURSO', 'CO_UF_CURSO',
                    'CO_REGIAO_CURSO', 'NU_IDADE', 'ANO_FIM_EM', 'ANO_IN_GRAD', 'CO_TURNO_GRADUACAO', 'TP_INSCRICAO_ADM', 'TP_INSCRICAO',

@@ -3,3 +3,4 @@ code/extract/data/*
 sa_credentials_enc.txt
 *.ipynb
 *.jar
+auth/
